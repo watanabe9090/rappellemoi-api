@@ -2,9 +2,11 @@ pipeline {
     agent any
 
     stages {
-        stage('Starting') {
+        stage('Build Image') {
             steps {
-                echo 'Initializing the pipeline'
+                script {
+                    dockerapp = docker.build("ctc/rappellemoi-api", '-f  ./Dockerfile ./')
+                }
             }
         }
     }
