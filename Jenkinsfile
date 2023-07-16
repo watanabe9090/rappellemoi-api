@@ -5,7 +5,7 @@ pipeline {
         stage('Build Image') {
             steps {
                 script {
-                    dockerapp = docker.build("ctc/rappellemoi-api:${env.BUILD_ID}", '-f  ./Dockerfile ./')
+                    dockerapp = docker.build("watanabe9090/rappellemoi-api:${env.BUILD_ID}", '-f  ./Dockerfile ./')
                 }
             }
         }
