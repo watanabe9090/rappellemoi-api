@@ -2,6 +2,7 @@ package dev.ctc.learning.rappellemoiapi.flashcard;
 
 
 import dev.ctc.learning.rappellemoiapi.flashcard.dto.SaveFlashcardDto;
+import dev.ctc.learning.rappellemoiapi.flashcard.dto.UpdateFlashcardDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,20 +20,36 @@ public class FlashcardController {
 
     private final FlashcardService flashcardService;
 
-    @GetMapping()
-    public ResponseEntity<List<Flashcard>> helloWorld() {
-        List<Flashcard> myFlashcards = flashcardService.getMyFlashcards();
+    @GetMapping
+    public ResponseEntity<List<Flashcard>> getMyCards(
+            @RequestParam(name = "q", defaultValue = "") String query
+    ) {
+        List<Flashcard> myFlashcards;
+        if(!query.isEmpty()) {
+            myFlashcards = flashcardService.getMyFlashcards(query);
+        } else {
+            myFlashcards = flashcardService.getAllMyFlashcards();
+        }
         return new ResponseEntity<>(myFlashcards, HttpStatus.OK);
     }
 
 
     @PostMapping
-    public ResponseEntity<String> postMyFlashcard(@RequestBody @Valid SaveFlashcardDto dto) {
+    public ResponseEntity<Void> postMyFlashcard(@RequestBody @Valid SaveFlashcardDto dto) {
         flashcardService.save(dto);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
+    @PutMapping
+    public ResponseEntity<Void> putMyFlashcard(@RequestBody @Valid UpdateFlashcardDto dto) {
+        flashcardService.update(dto);
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
 
+    @DeleteMapping
+    public ResponseEntity<Void> deleteMyFlashcard() {
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 
 
 }

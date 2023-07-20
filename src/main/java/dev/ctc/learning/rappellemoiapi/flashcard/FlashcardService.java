@@ -5,7 +5,6 @@ import dev.ctc.learning.rappellemoiapi.flashcard.dto.UpdateFlashcardDto;
 import dev.ctc.learning.rappellemoiapi.user.User;
 import dev.ctc.learning.rappellemoiapi.user.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +28,14 @@ public class FlashcardService {
                 .orElseThrow();
     }
 
-    public List<Flashcard> getMyFlashcards() {
+
+
+    public List<Flashcard> getMyFlashcards(String query) {
+        List<Flashcard> myFlashcards = flashcardRepository.findByFrontContainingIgnoreCaseOrBackContainingIgnoreCase(query, query);
+        return myFlashcards;
+    }
+
+    public List<Flashcard> getAllMyFlashcards() {
         User user = getUser();
         List<Flashcard> myCards = flashcardRepository.findByUserId(user.getId());
         return myCards;
@@ -47,6 +53,7 @@ public class FlashcardService {
     }
 
     public void update(UpdateFlashcardDto dto) {
-
+        User user = getUser();
+        flashcardRepository.findByIdAndUserId(dto.id(),user.getId());
     }
 }

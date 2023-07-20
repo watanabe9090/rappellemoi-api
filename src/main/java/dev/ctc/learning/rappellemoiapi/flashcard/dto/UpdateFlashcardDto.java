@@ -2,6 +2,8 @@ package dev.ctc.learning.rappellemoiapi.flashcard.dto;
 
 import lombok.Data;
 
-@Data
-public class UpdateFlashcardDto {
-}
+public record UpdateFlashcardDto (
+        Long id,
+        String front,
+        String back
+){}
