@@ -5,12 +5,13 @@ import dev.ctc.learning.rappellemoiapi.flashcard.dto.SaveFlashcardDto;
 import dev.ctc.learning.rappellemoiapi.flashcard.dto.UpdateFlashcardDto;
 import dev.ctc.learning.rappellemoiapi.user.User;
 import dev.ctc.learning.rappellemoiapi.user.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -39,24 +40,34 @@ public class FlashcardService {
         return myCards;
     }
 
-    public void save(SaveFlashcardDto dto) {
-        Flashcard newFlashcard = Flashcard.builder()
-                .user(getUser())
-                .front(dto.front())
-                .back(dto.back())
-                .nextRevision(new Date())
-                .gradient(1)
-                .build();
-        flashcardRepository.save(newFlashcard);
+    @Transactional
+    public void save(List<SaveFlashcardDto> dtos) {
+        List<Flashcard> flashcards = dtos.stream().map(dto -> Flashcard.builder()
+                        .user(getUser())
+                        .front(dto.front())
+                        .back(dto.back())
+                        .nextRevision(new Date())
+                        .gradient(1)
+                        .build())
+                .toList();
+        if(!flashcards.isEmpty()) {
+            flashcardRepository.saveAll(flashcards);
+        }
     }
 
-    public void update(UpdateFlashcardDto dto) {
+    public void update(List<UpdateFlashcardDto> dtos) {
         User user = getUser();
-        Flashcard flashcard = flashcardRepository.findByIdAndUserId(dto.id(), user.getId())
-                .orElseThrow();
-        flashcard.setBack(dto.back());
-        flashcard.setFront(dto.front());
-        flashcardRepository.save(flashcard);
+        List<Flashcard> updatedFlashcards = dtos.stream()
+                .map(dto -> Pair.of(dto, flashcardRepository.findByIdAndUserId(dto.id(), user.getId())))
+                .filter(entry -> entry.getValue().isPresent())
+                .map(entry -> Pair.of(entry.getKey(), entry.getValue().get()))
+                .map(entry -> {
+                    entry.getValue().setFront(entry.getKey().front());
+                    entry.getValue().setBack(entry.getKey().back());
+                    return entry.getValue();
+                })
+                .toList();
+        flashcardRepository.saveAll(updatedFlashcards);
     }
 
     public void delete(Long id) {
@@ -68,7 +79,11 @@ public class FlashcardService {
 
     public List<ResponseFlashcardDto> convert(List<Flashcard> flashcard) {
         return flashcard.stream()
-                .map(f -> new ResponseFlashcardDto(f.getId(), f.getFront(), f.getBack(), f.getNextRevision()))
+                .map(f -> new ResponseFlashcardDto(
+                        f.getId(),
+                        f.getFront(),
+                        f.getBack(),
+                        f.getNextRevision()))
                 .toList();
     }
 }

@@ -35,14 +35,14 @@ public class FlashcardController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> postMyFlashcard(@RequestBody @Valid SaveFlashcardDto dto) {
-        flashcardService.save(dto);
+    public ResponseEntity<Void> postMyFlashcard(@RequestBody @Valid List<SaveFlashcardDto> dtos) {
+        flashcardService.save(dtos);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @PutMapping
-    public ResponseEntity<Void> putMyFlashcard(@RequestBody @Valid UpdateFlashcardDto dto) {
-        flashcardService.update(dto);
+    public ResponseEntity<Void> putMyFlashcard(@RequestBody @Valid List<UpdateFlashcardDto> dtos) {
+        flashcardService.update(dtos);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
