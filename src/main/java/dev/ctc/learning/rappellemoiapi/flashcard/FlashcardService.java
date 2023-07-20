@@ -1,5 +1,6 @@
 package dev.ctc.learning.rappellemoiapi.flashcard;
 
+import dev.ctc.learning.rappellemoiapi.flashcard.dto.ResponseFlashcardDto;
 import dev.ctc.learning.rappellemoiapi.flashcard.dto.SaveFlashcardDto;
 import dev.ctc.learning.rappellemoiapi.flashcard.dto.UpdateFlashcardDto;
 import dev.ctc.learning.rappellemoiapi.user.User;
@@ -18,7 +19,6 @@ public class FlashcardService {
     private final FlashcardRepository flashcardRepository;
     private final UserRepository userRepository;
 
-
     private User getUser() {
         String userEmail = (String) SecurityContextHolder
                 .getContext()
@@ -28,14 +28,12 @@ public class FlashcardService {
                 .orElseThrow();
     }
 
-
-
-    public List<Flashcard> getMyFlashcards(String query) {
+    public List<Flashcard> getFlashcards(String query) {
         List<Flashcard> myFlashcards = flashcardRepository.findByFrontContainingIgnoreCaseOrBackContainingIgnoreCase(query, query);
         return myFlashcards;
     }
 
-    public List<Flashcard> getAllMyFlashcards() {
+    public List<Flashcard> getAllFlashcards() {
         User user = getUser();
         List<Flashcard> myCards = flashcardRepository.findByUserId(user.getId());
         return myCards;
@@ -54,6 +52,23 @@ public class FlashcardService {
 
     public void update(UpdateFlashcardDto dto) {
         User user = getUser();
-        flashcardRepository.findByIdAndUserId(dto.id(),user.getId());
+        Flashcard flashcard = flashcardRepository.findByIdAndUserId(dto.id(), user.getId())
+                .orElseThrow();
+        flashcard.setBack(dto.back());
+        flashcard.setFront(dto.front());
+        flashcardRepository.save(flashcard);
+    }
+
+    public void delete(Long id) {
+        User user = getUser();
+        Flashcard flashcard = flashcardRepository.findByIdAndUserId(id, user.getId())
+                .orElseThrow();
+        flashcardRepository.delete(flashcard);
+    }
+
+    public List<ResponseFlashcardDto> convert(List<Flashcard> flashcard) {
+        return flashcard.stream()
+                .map(f -> new ResponseFlashcardDto(f.getId(), f.getFront(), f.getBack(), f.getNextRevision()))
+                .toList();
     }
 }

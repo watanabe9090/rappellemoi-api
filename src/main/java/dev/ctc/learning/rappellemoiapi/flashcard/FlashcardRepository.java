@@ -9,7 +9,6 @@ import java.util.UUID;
 public interface FlashcardRepository extends JpaRepository<Flashcard, Long> {
     List<Flashcard> findByUserId(UUID userId);
     Optional<Flashcard> findByIdAndUserId(Long id, UUID userId);
-
-
+//    void deleteByIdAndUserId(Long id, UUID userId);
     List<Flashcard> findByFrontContainingIgnoreCaseOrBackContainingIgnoreCase(String front, String back);
 }

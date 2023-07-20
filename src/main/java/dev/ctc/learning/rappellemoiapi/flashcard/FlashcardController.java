@@ -1,6 +1,7 @@
 package dev.ctc.learning.rappellemoiapi.flashcard;
 
 
+import dev.ctc.learning.rappellemoiapi.flashcard.dto.ResponseFlashcardDto;
 import dev.ctc.learning.rappellemoiapi.flashcard.dto.SaveFlashcardDto;
 import dev.ctc.learning.rappellemoiapi.flashcard.dto.UpdateFlashcardDto;
 import jakarta.validation.Valid;
@@ -21,18 +22,17 @@ public class FlashcardController {
     private final FlashcardService flashcardService;
 
     @GetMapping
-    public ResponseEntity<List<Flashcard>> getMyCards(
-            @RequestParam(name = "q", defaultValue = "") String query
+    public ResponseEntity<List<ResponseFlashcardDto>> getMyCards(
+            @RequestParam(name = "q", defaultValue = "", required = false) String query
     ) {
-        List<Flashcard> myFlashcards;
+        List<ResponseFlashcardDto> myFlashcards;
         if(!query.isEmpty()) {
-            myFlashcards = flashcardService.getMyFlashcards(query);
+            myFlashcards = flashcardService.convert(flashcardService.getFlashcards(query));
         } else {
-            myFlashcards = flashcardService.getAllMyFlashcards();
+            myFlashcards = flashcardService.convert(flashcardService.getAllFlashcards());
         }
         return new ResponseEntity<>(myFlashcards, HttpStatus.OK);
     }
-
 
     @PostMapping
     public ResponseEntity<Void> postMyFlashcard(@RequestBody @Valid SaveFlashcardDto dto) {
@@ -46,8 +46,9 @@ public class FlashcardController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @DeleteMapping
-    public ResponseEntity<Void> deleteMyFlashcard() {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteMyFlashcard(@PathVariable Long id) {
+        flashcardService.delete(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
