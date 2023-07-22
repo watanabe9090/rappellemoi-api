@@ -1,5 +1,6 @@
 package dev.ctc.learning.rappellemoiapi.user;
 
+import dev.ctc.learning.rappellemoiapi.token.Token;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,6 +30,12 @@ public class User implements UserDetails {
     private String password;
     @Enumerated(EnumType.STRING)
     private Role role;
+    @OneToMany(mappedBy = "user")
+    private List<Token> tokens;
+
+    private boolean enable;
+    private boolean expired;
+    private boolean locked;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -42,12 +49,12 @@ public class User implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        return true;
+        return !expired;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return !locked;
     }
 
     @Override
@@ -57,6 +64,6 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return enable;
     }
 }
