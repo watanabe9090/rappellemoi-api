@@ -18,6 +18,7 @@
 
 		<jjwt.version>0.11.5</jjwt.version>
 		<commons-lang3.version>3.12.0</commons-lang3.version>
+		<aspectj.version>1.7.4</aspectj.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -68,6 +69,10 @@
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-aop</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-api</artifactId>
 			<version>${jjwt.version}</version>
@@ -88,6 +93,17 @@
 			<version>${commons-lang3.version}</version>
 		</dependency>
 
+<!--		<dependency>-->
+<!--			<groupId>org.aspectj</groupId>-->
+<!--			<artifactId>aspectjrt</artifactId>-->
+<!--			<version>${aspectj.version}</version>-->
+<!--			<scope>runtime</scope>-->
+<!--		</dependency>-->
+<!--		<dependency>-->
+<!--			<groupId>org.aspectj</groupId>-->
+<!--			<artifactId>aspectjtools</artifactId>-->
+<!--			<version>${aspectj.version}</version>-->
+<!--		</dependency>-->
 	</dependencies>
 
 	<build>
