@@ -1,4 +1,4 @@
-package dev.ctc.learning.rappellemoiapi.deck.deck;
+package dev.ctc.learning.rappellemoiapi.deck.exceptions;
 
 public class DeckDoesNotExistsException extends Exception {
     public DeckDoesNotExistsException(String pattern, String... texts) {

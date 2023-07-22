@@ -1,9 +1,8 @@
 package dev.ctc.learning.rappellemoiapi.deck;
 
-import dev.ctc.learning.rappellemoiapi.auth.exceptions.UserAlreadyExistsException;
 import dev.ctc.learning.rappellemoiapi.base.BaseErrorHandler;
-import dev.ctc.learning.rappellemoiapi.deck.deck.DeckAlreadyExistsException;
-import dev.ctc.learning.rappellemoiapi.deck.deck.DeckDoesNotExistsException;
+import dev.ctc.learning.rappellemoiapi.deck.exceptions.DeckAlreadyExistsException;
+import dev.ctc.learning.rappellemoiapi.deck.exceptions.DeckDoesNotExistsException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;

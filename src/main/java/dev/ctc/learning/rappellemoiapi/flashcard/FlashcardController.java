@@ -1,7 +1,7 @@
 package dev.ctc.learning.rappellemoiapi.flashcard;
 
 
-import dev.ctc.learning.rappellemoiapi.deck.deck.DeckDoesNotExistsException;
+import dev.ctc.learning.rappellemoiapi.deck.exceptions.DeckDoesNotExistsException;
 import dev.ctc.learning.rappellemoiapi.flashcard.dto.ApplyRevisionDto;
 import dev.ctc.learning.rappellemoiapi.flashcard.dto.ResponseFlashcardDto;
 import dev.ctc.learning.rappellemoiapi.flashcard.dto.SaveFlashcardDto;

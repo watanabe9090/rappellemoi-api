@@ -1,8 +1,8 @@
 package dev.ctc.learning.rappellemoiapi.deck;
 
 
-import dev.ctc.learning.rappellemoiapi.deck.deck.DeckAlreadyExistsException;
-import dev.ctc.learning.rappellemoiapi.deck.deck.DeckDoesNotExistsException;
+import dev.ctc.learning.rappellemoiapi.deck.exceptions.DeckAlreadyExistsException;
+import dev.ctc.learning.rappellemoiapi.deck.exceptions.DeckDoesNotExistsException;
 import dev.ctc.learning.rappellemoiapi.deck.dto.ResponseDeckDto;
 import dev.ctc.learning.rappellemoiapi.deck.dto.SaveDeckDto;
 import dev.ctc.learning.rappellemoiapi.deck.dto.UpdateDeckDto;
