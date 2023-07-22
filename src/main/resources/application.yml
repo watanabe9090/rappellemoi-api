@@ -12,6 +12,11 @@ spring:
     password: ${DB_PASSWORD}
 
 
+management:
+  endpoint:
+    web:
+      expose:
+        include: "*"
 
 logging:
   level:

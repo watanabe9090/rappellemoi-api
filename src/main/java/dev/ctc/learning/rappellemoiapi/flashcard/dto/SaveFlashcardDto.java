@@ -6,5 +6,6 @@ import lombok.Data;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record SaveFlashcardDto(
     String front,
-    String back
+    String back,
+    String deckName
 ) { }

@@ -1,6 +1,8 @@
 package dev.ctc.learning.rappellemoiapi.flashcard;
 
 
+import dev.ctc.learning.rappellemoiapi.deck.deck.DeckDoesNotExistsException;
+import dev.ctc.learning.rappellemoiapi.flashcard.dto.ApplyRevisionDto;
 import dev.ctc.learning.rappellemoiapi.flashcard.dto.ResponseFlashcardDto;
 import dev.ctc.learning.rappellemoiapi.flashcard.dto.SaveFlashcardDto;
 import dev.ctc.learning.rappellemoiapi.flashcard.dto.UpdateFlashcardDto;
@@ -23,7 +25,8 @@ public class FlashcardController {
 
     @GetMapping
     public ResponseEntity<List<ResponseFlashcardDto>> getMyCards(
-            @RequestParam(name = "q", defaultValue = "", required = false) String query
+            @RequestParam(name = "q", defaultValue = "", required = false) String query,
+            @RequestParam(name = "deck", defaultValue = "", required = false) String deck
     ) {
         List<ResponseFlashcardDto> myFlashcards;
         if(!query.isEmpty()) {
@@ -35,13 +38,20 @@ public class FlashcardController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> postMyFlashcard(@RequestBody @Valid List<SaveFlashcardDto> dtos) {
+    public ResponseEntity<Void> postMyFlashcards(@RequestBody @Valid List<SaveFlashcardDto> dtos) throws DeckDoesNotExistsException {
         flashcardService.save(dtos);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
+
+    @PatchMapping
+    public ResponseEntity<Void> applyRevisionsOnMyFlashcards(@RequestBody @Valid List<ApplyRevisionDto> dto) {
+        flashcardService.applyRevision(dto);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
     @PutMapping
-    public ResponseEntity<Void> putMyFlashcard(@RequestBody @Valid List<UpdateFlashcardDto> dtos) {
+    public ResponseEntity<Void> putMyFlashcards(@RequestBody @Valid List<UpdateFlashcardDto> dtos) {
         flashcardService.update(dtos);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }

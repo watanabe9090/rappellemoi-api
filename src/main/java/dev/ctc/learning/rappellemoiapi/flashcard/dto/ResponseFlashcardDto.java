@@ -6,6 +6,7 @@ public record ResponseFlashcardDto(
         Long id,
         String front,
         String back,
+        String deck,
         Date nextRevision
 ) {
 }

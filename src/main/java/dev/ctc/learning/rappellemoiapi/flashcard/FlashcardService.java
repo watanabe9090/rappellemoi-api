@@ -1,33 +1,40 @@
 package dev.ctc.learning.rappellemoiapi.flashcard;
 
+import dev.ctc.learning.rappellemoiapi.base.BaseService;
+import dev.ctc.learning.rappellemoiapi.deck.Deck;
+import dev.ctc.learning.rappellemoiapi.deck.DeckRepository;
+import dev.ctc.learning.rappellemoiapi.deck.deck.DeckDoesNotExistsException;
+import dev.ctc.learning.rappellemoiapi.flashcard.dto.ApplyRevisionDto;
 import dev.ctc.learning.rappellemoiapi.flashcard.dto.ResponseFlashcardDto;
 import dev.ctc.learning.rappellemoiapi.flashcard.dto.SaveFlashcardDto;
 import dev.ctc.learning.rappellemoiapi.flashcard.dto.UpdateFlashcardDto;
 import dev.ctc.learning.rappellemoiapi.user.User;
 import dev.ctc.learning.rappellemoiapi.user.UserRepository;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.groupingBy;
 
 @Service
-@RequiredArgsConstructor
-public class FlashcardService {
+public class FlashcardService extends BaseService {
 
     private final FlashcardRepository flashcardRepository;
-    private final UserRepository userRepository;
+    private final RevisionGradientService revisionGradientService;
+    private final DeckRepository deckRepository;
 
-    private User getUser() {
-        String userEmail = (String) SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal();
-        return userRepository.findByEmail(userEmail)
-                .orElseThrow();
+    public FlashcardService(UserRepository userRepository, FlashcardRepository flashcardRepository, RevisionGradientService revisionGradientService, DeckRepository deckRepository) {
+        super(userRepository);
+        this.flashcardRepository = flashcardRepository;
+        this.revisionGradientService = revisionGradientService;
+        this.deckRepository = deckRepository;
     }
+
 
     public List<Flashcard> getFlashcards(String query) {
         List<Flashcard> myFlashcards = flashcardRepository.findByFrontContainingIgnoreCaseOrBackContainingIgnoreCase(query, query);
@@ -41,17 +48,31 @@ public class FlashcardService {
     }
 
     @Transactional
-    public void save(List<SaveFlashcardDto> dtos) {
-        List<Flashcard> flashcards = dtos.stream().map(dto -> Flashcard.builder()
-                        .user(getUser())
-                        .front(dto.front())
-                        .back(dto.back())
+    public void save(List<SaveFlashcardDto> dtos) throws DeckDoesNotExistsException {
+        User user = getUser();
+        Map<Boolean, List<Pair<SaveFlashcardDto, Optional<Deck>>>> possibleDecks = dtos.stream()
+                .map(dto -> Pair.of(dto, deckRepository.findByNameAndUserId(dto.deckName(), user.getId())))
+                .collect(groupingBy(pair -> pair.getValue().isPresent()));
+        if(possibleDecks.get(false) != null && !possibleDecks.get(false).isEmpty()) {
+            String deckNamesPattern = possibleDecks.get(false).stream()
+                    .map(pair -> pair.getKey().deckName())
+                    .distinct()
+                    .collect(Collectors.joining(", "));
+            throw new DeckDoesNotExistsException("reference(s) to deck(s) %s does not exists", deckNamesPattern);
+        }
+        List<Flashcard> newFlashcards = possibleDecks.get(true).stream()
+                .map(dto -> Flashcard.builder()
+                        .user(user)
+                        .front(dto.getKey().front())
+                        .back(dto.getKey().back())
+                        .deck(dto.getValue().get())
                         .nextRevision(new Date())
                         .gradient(1)
-                        .build())
+                        .build()
+                )
                 .toList();
-        if(!flashcards.isEmpty()) {
-            flashcardRepository.saveAll(flashcards);
+        if(!newFlashcards.isEmpty()) {
+            flashcardRepository.saveAll(newFlashcards);
         }
     }
 
@@ -83,7 +104,26 @@ public class FlashcardService {
                         f.getId(),
                         f.getFront(),
                         f.getBack(),
+                        f.getDeck().getName(),
                         f.getNextRevision()))
                 .toList();
+    }
+
+    public void applyRevision(List<ApplyRevisionDto> dtos) {
+        User user = getUser();
+        List<Flashcard> revisedFlashcards = dtos.stream()
+                .map(dto -> Pair.of(dto, flashcardRepository.findByIdAndUserId(dto.id(), user.getId())))
+                .map(entry -> Pair.of(entry.getKey(), entry.getValue().get()))
+                .map(entry -> {
+                    String degree = entry.getKey().degree();
+                    Integer gradient = entry.getValue().getGradient();
+                    Date currentRevision = entry.getValue().getNextRevision();
+
+//                    Date nextRevision = revisionGradientService.calculateNextRevision(currentRevision, gradient, degree);
+//                    entry.getValue().setNextRevision(nextRevision);
+                    return entry.getValue();
+                })
+                .toList();
+        flashcardRepository.saveAll(revisedFlashcards);
     }
 }
