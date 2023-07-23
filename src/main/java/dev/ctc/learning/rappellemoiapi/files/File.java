@@ -1,6 +1,7 @@
 package dev.ctc.learning.rappellemoiapi.files;
 
 import dev.ctc.learning.rappellemoiapi.auditing.BaseAuditableEntity;
+import dev.ctc.learning.rappellemoiapi.user.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,4 +22,7 @@ public class File extends BaseAuditableEntity {
     private String contentType;
     private String systemFilename;
     private String systemPath;
+
+    @ManyToOne
+    private User user;
 }

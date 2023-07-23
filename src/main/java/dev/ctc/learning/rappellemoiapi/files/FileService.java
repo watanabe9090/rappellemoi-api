@@ -3,8 +3,6 @@ package dev.ctc.learning.rappellemoiapi.files;
 import dev.ctc.learning.rappellemoiapi.base.BaseService;
 import dev.ctc.learning.rappellemoiapi.user.User;
 import dev.ctc.learning.rappellemoiapi.user.UserRepository;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,6 +22,11 @@ public class FileService extends BaseService {
         this.fileRepository = fileRepository;
     }
 
+    public void get() {
+
+    }
+
+
     public void save(MultipartFile file) throws FileAlreadyExistsException {
         User user = getUser();
         try {
@@ -38,6 +41,7 @@ public class FileService extends BaseService {
                     .contentType(file.getContentType())
                     .systemFilename(systemFilename)
                     .systemPath(newFilePath.toString())
+                    .user(user)
                     .build();
             fileRepository.save(newFile);
         } catch (Exception e) {
