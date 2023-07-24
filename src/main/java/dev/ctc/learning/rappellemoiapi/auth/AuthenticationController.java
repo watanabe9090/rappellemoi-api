@@ -4,11 +4,11 @@ import dev.ctc.learning.rappellemoiapi.auth.exceptions.UserAlreadyExistsExceptio
 import dev.ctc.learning.rappellemoiapi.auth.exceptions.UserDoesNotExistsException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.Response;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("auth")
@@ -25,6 +25,12 @@ public class AuthenticationController {
     @PostMapping("registration")
     public ResponseEntity<AuthenticationResponse> register(@RequestBody @Valid RegisterRequest body) throws UserAlreadyExistsException {
         return ResponseEntity.ok(authenticationService.register(body));
+    }
+
+    @PreAuthorize("hasAuthority('USER')")
+    @GetMapping("/check")
+    public ResponseEntity<Void> check() {
+        return new ResponseEntity(HttpStatus.OK);
     }
 
 
